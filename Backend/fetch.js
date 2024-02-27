@@ -1,3 +1,5 @@
+import {ajoutListenerConnexion} from "./login.js";
+
 const section = document.querySelector("#portfolio");
 
 export async function getDataCategories() {
@@ -94,3 +96,5 @@ export async function ajoutLiaison(categoryId) {
     console.log(element);
   }
 }
+
+ajoutListenerConnexion()
