@@ -262,3 +262,7 @@ nav> ul> li> a{
 	padding: 10px;
 	cursor: pointer;
 }
+
+.error-msg {
+	color: red;
+}

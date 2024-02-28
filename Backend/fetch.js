@@ -1,4 +1,4 @@
-import {ajoutListenerConnexion} from "./login.js";
+// import {ajoutListenerConnexion} from "./login.js";
 
 const section = document.querySelector("#portfolio");
 
@@ -19,7 +19,6 @@ export async function getDataCategories() {
         categoryNames.add(category.name);
       }
       for (const categoryName of categoryNames) {
-        // const li = document.createElement("li")
         ul.innerHTML += `<li class="filter-btn">${[categoryName]}</li>`;
       }
 
@@ -83,7 +82,7 @@ export async function ajoutListener() {
   }
 }
 
-export async function ajoutLiaison(categoryId) {
+export function ajoutLiaison(categoryId) {
   console.log(categoryId);
   const liaisonImg = document.querySelectorAll("#portfolio figure");
   for (let i = 0; i < liaisonImg.length; i++) {
@@ -97,4 +96,4 @@ export async function ajoutLiaison(categoryId) {
   }
 }
 
-ajoutListenerConnexion()
+// ajoutListenerConnexion()
