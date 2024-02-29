@@ -1,5 +1,3 @@
-// import {ajoutListenerConnexion} from "./login.js";
-
 const section = document.querySelector("#portfolio");
 
 export async function getDataCategories() {
@@ -76,7 +74,6 @@ export async function ajoutListener() {
         default:
           ajoutLiaison(0);
           break;
-        // code block
       }
     });
   }
@@ -96,4 +93,3 @@ export function ajoutLiaison(categoryId) {
   }
 }
 
-// ajoutListenerConnexion()

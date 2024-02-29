@@ -1,9 +1,9 @@
 const formulaireConnexion = document.querySelector(".form-login");
 const loginButton = document.querySelector("#loginButton");
 
-const errorMsg = document.querySelector(".error-msg")
+const errorMsg = document.querySelector(".error-msg");
 
-console.log(errorMsg);
+// console.log(errorMsg);
 
 function ajoutListenerConnexion() {
   formulaireConnexion.addEventListener("submit", function (event) {
@@ -30,15 +30,15 @@ function ajoutListenerConnexion() {
         console.log("Données reçues du serveur :", data);
 
         if (data.userId === 1) {
-        sessionStorage.setItem("auth", data.token);
-        sessionStorage.setItem("userInfo", data.userId);
-        errorMsg.textContent = ""
-        window.location.href = "index.html";
-      } else { 
-        sessionStorage.clear()
-        errorMsg.textContent = "Un problème est survenu, try again later."
-      }
-
+          // if (data.length > 0) {
+          sessionStorage.setItem("auth", data.token);
+          sessionStorage.setItem("userInfo", data.userId);
+          errorMsg.textContent = "";
+          window.location.href = "index.html";
+        } else {
+          sessionStorage.clear();
+          errorMsg.textContent = "Un problème est survenu, try again later.";
+        }
       })
       .catch((error) => {
         console.error("Erreur lors de la connexion :", error);
@@ -47,25 +47,25 @@ function ajoutListenerConnexion() {
 }
 
 function switchText() {
-  if (
-    sessionStorage.getItem("auth")  &&
-    sessionStorage.getItem("userInfo") 
-  ) {
+  const loginButton = document.querySelector("#loginButton");
+  const editionModeDiv = document.querySelector(".js-edition-mode");
+
+  if (sessionStorage.getItem("auth") && sessionStorage.getItem("userInfo")) {
     loginButton.textContent = "logout";
+    editionModeDiv.style.display = "block"; // Afficher l'élément
   } else {
     loginButton.textContent = "login";
+    editionModeDiv.style.display = "none"; // Cacher l'élément
   }
 }
-
-switchText();
 
 if (formulaireConnexion !== null) {
   ajoutListenerConnexion();
 }
 
+loginButton.addEventListener("click", function () {
+  sessionStorage.removeItem("auth");
+  sessionStorage.removeItem("userInfo");
+});
 
-  loginButton.addEventListener ("click", function (){
-    sessionStorage.removeItem("auth")
-    sessionStorage.removeItem("userInfo")
-  })
-  
+switchText()
