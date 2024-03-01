@@ -21,15 +21,12 @@
     />
     <script type="module" src="/Backend/fetch.js" defer></script>
     <script type="module" src="/Backend/login.js" defer></script>
+    <script type="module" src="/Backend/modal.js" defer></script>
   </head>
   <body>
     <div class="js-edition-mode">
       <div class="edition-mode">
-        <button
-          id="edition-mode-btn"
-          class="fa-regular fa-pen-to-square"
-        ></button>
-        Mode édition
+        <a href="#modal1" class="js-modal fa-regular fa-pen-to-square"></a>Mode éditon
       </div>
     </div>
     <header>
@@ -138,6 +135,20 @@
         </form>
       </section>
     </main>
+    <aside
+      id="modal1"
+      class="modal"
+      aria-hidden="true"
+      role="dialog"
+      aria-labelledby="titlemodal"
+      style="display: none"
+    >
+      <div class="modal-wrapper js-modal-stop">
+        <button class="js-modal-close"><i class="fa-solid fa-xmark"></i></button>
+        <h3 id="titlemodal">Galerie photo</h3>
+        <input type="submit" value="Ajouter une photo" />
+      </div>
+    </aside>
     <footer>
       <nav>
         <ul>
