@@ -1,3 +1,5 @@
+import fetchData from "./fetchWorks.js";
+
 const section = document.querySelector("#portfolio");
 
 export async function getDataCategories() {
@@ -14,11 +16,12 @@ export async function getDataCategories() {
       // Utilisation d'un ensemble (Set) pour stocker les noms de catégories uniques
       const categoryNames = new Set();
       for (const category of data) {
-        categoryNames.add(category.name);
+        ul.innerHTML += `<li class="filter-btn">${[category.name]}</li>`;
+        // categoryNames.add(category.name);
       }
-      for (const categoryName of categoryNames) {
-        ul.innerHTML += `<li class="filter-btn">${[categoryName]}</li>`;
-      }
+      // for (const categoryName of categoryNames) {
+      //   ul.innerHTML += `<li class="filter-btn">${[categoryName]}</li>`;
+      // }
 
       div.appendChild(ul);
       section.appendChild(div);
@@ -32,18 +35,17 @@ export async function getDataCategories() {
 
 getDataCategories();
 
-export async function getDataWork() {
+export async function createWorksList() {
   try {
-    const response = await fetch("http://localhost:5678/api/works");
-    const data = await response.json();
+    const [response,works] = await fetchData()
     // console.log(data);
     if (response.status === 200) {
       const div = document.createElement("div");
       div.classList.add("gallery");
-      for (let i = 0; i < data.length; i++) {
-        div.innerHTML += `<figure data-category="${data[i].categoryId}">
-         	   <img src="${data[i].imageUrl}" alt="Abajour Tahina">
-             <figcaption>${data[i].title}</figcaption>
+      for (let i = 0; i < works.length; i++) {
+        div.innerHTML += `<figure data-category="${works[i].categoryId}">
+         	   <img src="${works[i].imageUrl}" alt="Abajour Tahina">
+             <figcaption>${works[i].title}</figcaption>
              </figure>`;
       }
 
@@ -54,7 +56,7 @@ export async function getDataWork() {
   }
 }
 
-getDataWork();
+createWorksList();
 
 export async function ajoutListener() {
   const filterBtn = document.querySelectorAll(".filter-btn");
@@ -80,7 +82,7 @@ export async function ajoutListener() {
 }
 
 export function ajoutLiaison(categoryId) {
-  console.log(categoryId);
+  // console.log(categoryId);
   const liaisonImg = document.querySelectorAll("#portfolio figure");
   for (let i = 0; i < liaisonImg.length; i++) {
     const element = liaisonImg[i];

@@ -19,14 +19,16 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <script type="module" src="/Backend/fetch.js" defer></script>
+    <script type="module" src="/Backend/createElements.js" defer></script>
     <script type="module" src="/Backend/login.js" defer></script>
-    <script type="module" src="/Backend/modal.js" defer></script>
+    <!-- <script type="module" src="/Backend/modal.js" defer></script> -->
+    <script type="module" src="/Backend/modal2.js" defer></script>
   </head>
   <body>
     <div class="js-edition-mode">
       <div class="edition-mode">
-        <a href="#modal1" class="js-modal fa-regular fa-pen-to-square"></a>Mode éditon
+        <a href="#modal1" class="js-modal fa-regular fa-pen-to-square"></a>Mode
+        éditon
       </div>
     </div>
     <header>
@@ -135,20 +137,6 @@
         </form>
       </section>
     </main>
-    <aside
-      id="modal1"
-      class="modal"
-      aria-hidden="true"
-      role="dialog"
-      aria-labelledby="titlemodal"
-      style="display: none"
-    >
-      <div class="modal-wrapper js-modal-stop">
-        <button class="js-modal-close"><i class="fa-solid fa-xmark"></i></button>
-        <h3 id="titlemodal">Galerie photo</h3>
-        <input type="submit" value="Ajouter une photo" />
-      </div>
-    </aside>
     <footer>
       <nav>
         <ul>
@@ -156,5 +144,70 @@
         </ul>
       </nav>
     </footer>
+
+    <!-- PARTIE MODALE -->
+    <aside class="modal">
+      <div class="modal-wrapper js-modal-stop">
+        <span><i class="fa-solid fa-xmark"></i></span>
+        <h3 id="titlemodal">Galerie photo</h3>
+        <!-- <div class="modal-gallery">
+           <figure>
+            <img src="assets/images/abajour-tahina.png" alt="Abajour Tahina" />
+          </figure>
+          <figure>
+            <img
+              src="assets/images/appartement-paris-v.png"
+              alt="Appartement Paris V"
+            />
+          </figure>
+          <figure>
+            <img
+              src="assets/images/restaurant-sushisen-londres.png"
+              alt="Restaurant Sushisen - Londres"
+            />
+          </figure>
+          <figure>
+            <img
+              src="assets/images/la-balisiere.png"
+              alt="Villa “La Balisiere” - Port Louis"
+            />
+          </figure>
+          <figure>
+            <img
+              src="assets/images/structures-thermopolis.png"
+              alt="Structures Thermopolis"
+            />
+          </figure>
+          <figure>
+            <img
+              src="assets/images/structures-thermopolis.png"
+              alt="Structures Thermopolis"
+            />
+          </figure> 
+        </div>
+        <hr /> -->
+        <input type="submit" value="Ajouter une photo" class="modal-ajout-btn" />
+      </div>
+      <div class="modal-add-photo">
+        <span><i class="fa-solid fa-arrow-left"></i></span>
+        <span><i class="fa-solid fa-xmark"></i></span>
+        <h3 id="title-add-photo">Ajout Photo</h3>
+        <form action="" method="" id="form-add-img">
+          <div class="container-add-img">
+            <p><i class="fa-regular fa-image"></i></p>
+            <label for="add-img" id="form-title">+ Ajouter photo</label>
+            <input type="file" name="image" id="add-img" />
+            <img src="#" alt="Preview de l'image" class="preview-img"/>
+            <span>jpg, png : 4mo max</span>
+          </div>
+          <label for="add-title">Titre</label>
+          <input type="text" name="title" id="add-title" />
+          <label for="form-category">Catégorie</label>
+          <select name="category" id="form-category"></select>
+          <hr>
+          <input type="submit" value="Valider" id="input-valider"/>
+        </form>
+      </div>
+    </aside>
   </body>
 </html>
