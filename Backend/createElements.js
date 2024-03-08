@@ -12,6 +12,7 @@ export async function getDataCategories() {
       const div = document.createElement("div");
       div.classList.add("categories");
       const ul = document.createElement("ul");
+      
 
       // Utilisation d'un ensemble (Set) pour stocker les noms de catégories uniques
       const categoryNames = new Set();
@@ -48,7 +49,6 @@ export async function createWorksList() {
              <figcaption>${works[i].title}</figcaption>
              </figure>`;
       }
-
       section.appendChild(div);
     }
   } catch (error) {
