@@ -244,6 +244,7 @@ li:hover {
 .gallery img {
   width: 100%;
 }
+
 #contact {
   width: 50%;
   margin: auto;
@@ -542,6 +543,7 @@ label {
   height: 36px;
   border-radius: 50px;
   padding: 5px 10px;
+  cursor: pointer;
 }
 
 #add-img {
@@ -598,4 +600,8 @@ label {
   top: 5px;
   right: 5px;
   cursor: pointer;
+}
+
+.errorDataFile {
+  color: red;
 }

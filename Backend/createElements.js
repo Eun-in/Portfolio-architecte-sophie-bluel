@@ -1,22 +1,20 @@
 import fetchData from "./fetchWorks.js";
+import fetchDataCat from "./fetchCategories.js";
 
 const section = document.querySelector("#portfolio");
 
-export async function getDataCategories() {
+export default async function getDataCategories() {
   try {
-    const response = await fetch("http://localhost:5678/api/categories");
-    const data = await response.json();
+    const [response, categories] = await fetchDataCat();
     if (response.status === 200) {
-      const id = data.length + 1;
-      data.unshift({ id, name: "Tous" });
+      const id = categories.length + 1;
+      categories.unshift({ id, name: "Tous" });
       const div = document.createElement("div");
       div.classList.add("categories");
       const ul = document.createElement("ul");
-      
-
       // Utilisation d'un ensemble (Set) pour stocker les noms de catégories uniques
       const categoryNames = new Set();
-      for (const category of data) {
+      for (const category of categories) {
         ul.innerHTML += `<li class="filter-btn">${[category.name]}</li>`;
         // categoryNames.add(category.name);
       }
@@ -33,12 +31,11 @@ export async function getDataCategories() {
     console.error("Error fetching data", error);
   }
 }
-
 getDataCategories();
 
 export async function createWorksList() {
   try {
-    const [response,works] = await fetchData()
+    const [response, works] = await fetchData();
     // console.log(data);
     if (response.status === 200) {
       const div = document.createElement("div");
@@ -94,4 +91,3 @@ export function ajoutLiaison(categoryId) {
     console.log(element);
   }
 }
-

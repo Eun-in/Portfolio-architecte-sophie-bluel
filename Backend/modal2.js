@@ -1,4 +1,6 @@
 import fetchData from "./fetchWorks.js";
+import fetchDataCat from "./fetchCategories.js";
+import getDataCategories from "./createElements.js";
 
 // Get the modal
 const modal = document.querySelector(".modal");
@@ -82,12 +84,11 @@ arrowCallBack.addEventListener("click", displayModale);
 // Delete images ///////////////
 function deleteProjet() {
   const trashNode = document.querySelectorAll(".delete-photo");
-  console.log(trashNode);
   trashNode.forEach((trash) => {
     trash.addEventListener("click", (e) => {
-      e.preventDefault()
+      e.preventDefault();
       const id = trash.id;
-      console.log(trash);
+      // console.log(trash);
 
       const token = sessionStorage.getItem("auth");
 
@@ -111,3 +112,97 @@ function deleteProjet() {
     });
   });
 }
+
+//////////////AJOUTER PREVIEW/////////////////
+
+const imgPreview = document.querySelector(".container-add-img img");
+const imgFile = document.querySelector(".container-add-img input");
+const imgLabel = document.querySelector(".container-add-img label");
+const imgI = document.querySelector(".container-add-img .fa-image");
+const imgSpan = document.querySelector(".container-add-img span");
+
+imgFile.addEventListener("change", () => {
+  const file = imgFile.files[0];
+  if (file) {
+    //FileReader permet à des applications web de lire le contenu de fichiers async. On peut ainsi lire des File
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      imgPreview.src = e.target.result;
+      imgPreview.style.display = "flex";
+      imgFile.style.display = "none";
+      imgLabel.style.display = "none";
+      imgI.style.display = "none";
+      imgSpan.style.display = "none";
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+/////////////////Recuperer les cat////////////////////
+
+async function displayCatModal() {
+  const select = document.querySelector("#form-add-img select");
+  try {
+    const [response, categories] = await fetchDataCat();
+    if (response.status === 200) {
+      categories.forEach((category) => {
+        const option = document.createElement("option");
+        option.value = category.id;
+        option.textContent = category.name;
+        select.appendChild(option);
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching categories", error);
+  }
+}
+displayCatModal();
+
+////////////AJOUTER PROJETS FETCH POST////////////
+
+const form = document.querySelector(".modal-add-photo form");
+const titleInput = document.querySelector("#add-title");
+const categoryInput = document.querySelector("#form-category");
+const API_URL = "http://localhost:5678/api/works";
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const token = sessionStorage.getItem("auth");
+
+  const formData = new FormData();
+  
+
+  // Ajouter les champs requis
+  formData.append("image", imgFile.files[0]);
+  formData.append("title", titleInput.value);
+  formData.append("category", categoryInput.value);
+  
+  // Vérifier si tous les champs sont remplis
+  if (!imgFile.files[0] || !titleInput.value || !categoryInput.value) {
+    document.querySelector(".errorDataFile").style.display = "block";
+    return;
+  }
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error("Erreur lors de la requête Fetch");
+    }
+
+    const data = await response.json();
+    console.log(`Projet ajouté avec succès :`, data);
+    document.querySelector(".errorDataFile").style.display = "none";
+
+    // Gérer la réponse de la requête Fetch ici
+  } catch (error) {
+    console.error(`Erreur lors de l'ajout du projet :`, error);
+  }
+});
