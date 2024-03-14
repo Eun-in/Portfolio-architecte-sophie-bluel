@@ -1,6 +1,6 @@
 import fetchData from "./fetchWorks.js";
 import fetchDataCat from "./fetchCategories.js";
-import getDataCategories from "./createElements.js";
+
 
 // Get the modal
 const modal = document.querySelector(".modal");
@@ -173,12 +173,12 @@ form.addEventListener("submit", async (e) => {
   const formData = new FormData();
   
 
-  // Ajouter les champs requis
+  // Ajout des champs requis
   formData.append("image", imgFile.files[0]);
   formData.append("title", titleInput.value);
   formData.append("category", categoryInput.value);
   
-  // Vérifier si tous les champs sont remplis
+  // Vérifie si tous les champs sont remplis
   if (!imgFile.files[0] || !titleInput.value || !categoryInput.value) {
     document.querySelector(".errorDataFile").style.display = "block";
     return;

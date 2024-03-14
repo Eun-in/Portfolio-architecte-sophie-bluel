@@ -1,8 +1,11 @@
+/////////// ici j'importe d'autres fonctions/////////////
+
 import fetchData from "./fetchWorks.js";
 import fetchDataCat from "./fetchCategories.js";
 
 const section = document.querySelector("#portfolio");
 
+///////// je récupère les catégories/////////////
 export default async function getDataCategories() {
   try {
     const [response, categories] = await fetchDataCat();
@@ -16,11 +19,8 @@ export default async function getDataCategories() {
       const categoryNames = new Set();
       for (const category of categories) {
         ul.innerHTML += `<li class="filter-btn">${[category.name]}</li>`;
-        // categoryNames.add(category.name);
+        categoryNames.add(category.name);
       }
-      // for (const categoryName of categoryNames) {
-      //   ul.innerHTML += `<li class="filter-btn">${[categoryName]}</li>`;
-      // }
 
       div.appendChild(ul);
       section.appendChild(div);
@@ -33,6 +33,7 @@ export default async function getDataCategories() {
 }
 getDataCategories();
 
+////////// je récupère la liste des projets/////////
 export async function createWorksList() {
   try {
     const [response, works] = await fetchData();
@@ -55,6 +56,8 @@ export async function createWorksList() {
 
 createWorksList();
 
+//////////j'itère (procede de calcul répétitif jusquà condition remplie)//////
+////////// sur chaque bouton de filtre et j'écoute////////////
 export async function ajoutListener() {
   const filterBtn = document.querySelectorAll(".filter-btn");
   for (let i = 0; i < filterBtn.length; i++) {
@@ -62,6 +65,7 @@ export async function ajoutListener() {
     element.addEventListener("click", (e) => {
       switch (e.target.textContent) {
         case "Objets":
+        //// j'utilise la fonction du bas pour trier les categoryId
           ajoutLiaison(1);
           break;
         case "Appartements":
@@ -78,12 +82,15 @@ export async function ajoutListener() {
   }
 }
 
+
+
 export function ajoutLiaison(categoryId) {
   // console.log(categoryId);
   const liaisonImg = document.querySelectorAll("#portfolio figure");
   for (let i = 0; i < liaisonImg.length; i++) {
     const element = liaisonImg[i];
     element.style.display = "none";
+    //////parseInt permet de changer string(chaine de caractère) to integer (nbre de entier)/////
     if (parseInt(element.dataset.category) === categoryId || categoryId === 0) {
       element.style.display = "block";
     }

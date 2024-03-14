@@ -2,13 +2,13 @@ const formulaireConnexion = document.querySelector(".form-login");
 const loginButton = document.querySelector("#loginButton");
 
 const errorMsg = document.querySelector(".error-msg");
-
 // console.log(errorMsg);
+
 
 function ajoutListenerConnexion() {
   formulaireConnexion.addEventListener("submit", function (event) {
     event.preventDefault();
-    // ici je récupère les valeurs
+    // ici je récupère les identifiants pour me connecter
     const connexion = {
       email: event.target.querySelector("[name=e-mail]").value,
       password: event.target.querySelector("[name=password]").value,
@@ -34,6 +34,7 @@ function ajoutListenerConnexion() {
           sessionStorage.setItem("auth", data.token);
           sessionStorage.setItem("userInfo", data.userId);
           errorMsg.textContent = "";
+          //retour sur l'index.html
           window.location.href = "index.html";
         } else {
           sessionStorage.clear();
@@ -46,6 +47,7 @@ function ajoutListenerConnexion() {
   });
 }
 
+//////////function pour échanger le texte login logout//////////////
 function switchText() {
   const loginButton = document.querySelector("#loginButton");
   const editionModeDiv = document.querySelector(".js-edition-mode");
