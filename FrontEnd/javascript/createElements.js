@@ -31,7 +31,6 @@ export default async function getDataCategories() {
     console.error("Error fetching data", error);
   }
 }
-getDataCategories();
 
 ////////// je récupère la liste des projets/////////
 export async function createWorksList() {
@@ -53,8 +52,6 @@ export async function createWorksList() {
     console.error("Error fetching data", error);
   }
 }
-
-createWorksList();
 
 //////////j'itère (procede de calcul répétitif jusquà condition remplie)//////
 ////////// sur chaque bouton de filtre et j'écoute////////////
@@ -98,3 +95,9 @@ export function ajoutLiaison(categoryId) {
     console.log(element);
   }
 }
+
+// permet de toujours charger les catégories avant les projets
+(async () => {
+  await getDataCategories();
+  await createWorksList();
+})();

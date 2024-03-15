@@ -1,7 +1,6 @@
 import fetchData from "./fetchWorks.js";
 import fetchDataCat from "./fetchCategories.js";
 
-
 // Get the modal
 const modal = document.querySelector(".modal");
 const modalWrapper = document.querySelector(".modal-wrapper");
@@ -61,6 +60,7 @@ export async function modalCreateWorksList() {
       modalWrapper.appendChild(hr);
       modalWrapper.appendChild(inputAjouterPhoto);
 
+      disabledValider();
       // Console log pour vérifier les identifiants des boutons de suppression
       //  console.log("Identifiants des boutons de suppression :", document.querySelectorAll(".delete-photo"));
     }
@@ -81,7 +81,7 @@ inputAjouterPhoto.addEventListener("click", () => {
 // *2B9S
 arrowCallBack.addEventListener("click", displayModale);
 
-// Delete images ///////////////
+///////// Delete images ///////////
 function deleteProjet() {
   const trashNode = document.querySelectorAll(".delete-photo");
   trashNode.forEach((trash) => {
@@ -138,13 +138,15 @@ imgFile.addEventListener("change", () => {
   }
 });
 
-/////////////////Recuperer les cat////////////////////
+///////Recuperer les cat dans la modale/////////
 
 async function displayCatModal() {
   const select = document.querySelector("#form-add-img select");
   try {
     const [response, categories] = await fetchDataCat();
     if (response.status === 200) {
+      // forEach itérer sur les éléments d'un tableau et
+      // d'appliquer une fonction à chaque élément.
       categories.forEach((category) => {
         const option = document.createElement("option");
         option.value = category.id;
@@ -165,44 +167,73 @@ const titleInput = document.querySelector("#add-title");
 const categoryInput = document.querySelector("#form-category");
 const API_URL = "http://localhost:5678/api/works";
 
-form.addEventListener("submit", async (e) => {
+form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const token = sessionStorage.getItem("auth");
 
   const formData = new FormData();
-  
+  /////// autre forme
+  // {
+  //   "id": 0,
+  //   "title": "string",
+  //   "imageUrl": "string",
+  //   "categoryId": "string",
+  //   "userId": 0
+  // }  /////////////////
 
   // Ajout des champs requis
   formData.append("image", imgFile.files[0]);
   formData.append("title", titleInput.value);
   formData.append("category", categoryInput.value);
-  
-  // Vérifie si tous les champs sont remplis
+
+  // Vérifie si le partie n'est pas définie, si c'est le cas alors
+  // j'affiche un message d'erreur
   if (!imgFile.files[0] || !titleInput.value || !categoryInput.value) {
     document.querySelector(".errorDataFile").style.display = "block";
     return;
   }
 
-  try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
+  fetch(API_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Erreur lors de la requête Fetch");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log(`Projet ajouté avec succès :`, data);
+      document.querySelector(".errorDataFile").style.display = "none";
+      // réponse Fetch ici
+      modalAddPhoto.style.display = "none";
+    // Afficher à nouveau la modale "ajouter une photo"
+    modal.style.display = "flex";
+    modalWrapper.style.display = "flex";
+      
+    })
+    .catch((error) => {
+      console.error(`Erreur lors de l'ajout du projet :`, error);
     });
-
-    if (!response.ok) {
-      throw new Error("Erreur lors de la requête Fetch");
-    }
-
-    const data = await response.json();
-    console.log(`Projet ajouté avec succès :`, data);
-    document.querySelector(".errorDataFile").style.display = "none";
-
-    // Gérer la réponse de la requête Fetch ici
-  } catch (error) {
-    console.error(`Erreur lors de l'ajout du projet :`, error);
-  }
 });
+
+function disabledValider() {
+  const formAddImg = document.querySelector("#form-add-img");
+  const confirmValid = document.querySelector("#confirm-valid");
+  const addImg = document.querySelector("#add-img");
+  const titleInput = document.querySelector("#add-title");
+  const categoryInput = document.querySelector("#form-category");
+
+  formAddImg.addEventListener("input", () => {
+    if (addImg.value && titleInput.value && categoryInput.value !== "default") {
+      confirmValid.classList.add("input-valider");
+    } else {
+      confirmValid.classList.remove("input-valider");
+    }
+  });
+}
