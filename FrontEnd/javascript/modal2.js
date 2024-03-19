@@ -8,7 +8,7 @@ const modalAddPhoto = document.querySelector(".modal-add-photo");
 const inputAjouterPhoto = document.querySelector(".modal-ajout-btn");
 const arrowCallBack = document.querySelector(".fa-arrow-left");
 
-//séparer une callback pour l'utiliser sur plusieurs éléments *2B9S
+//séparer une callback pour l'utiliser sur plusieurs éléments
 const displayModale = () => {
   modal.style.display = "flex";
   modalWrapper.style.display = "flex";
@@ -24,16 +24,16 @@ const displayClose = () => {
 // Get the button that opens the modal
 const btnEdition = document.querySelector(".fa-pen-to-square");
 
-// // Get the <span> element that closes the modal
+// Get the <span> element that closes the modal
 const spanClose = document.querySelectorAll(".fa-xmark");
 for (const croix of spanClose) {
   croix.addEventListener("click", displayClose);
 }
 
-// // When the user clicks the button, open the modal *2B9S
+// When the user clicks the button, open the modal *2B9S
 btnEdition.addEventListener("click", displayModale);
 
-// // When the user clicks anywhere outside of the modal, close it
+// When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
   if (event.target == modal) {
     modal.style.display = "none";
@@ -78,7 +78,6 @@ inputAjouterPhoto.addEventListener("click", () => {
   // console.log('coucou'); commence toujours par faire une consolelog dans tes callback
 });
 
-// *2B9S
 arrowCallBack.addEventListener("click", displayModale);
 
 ///////// Delete images ///////////
@@ -88,7 +87,6 @@ function deleteProjet() {
     trash.addEventListener("click", (e) => {
       e.preventDefault();
       const id = trash.id;
-      // console.log(trash);
 
       const token = sessionStorage.getItem("auth");
 
@@ -104,10 +102,12 @@ function deleteProjet() {
           if (!response.ok) {
             console.log("Réponse du serveur, la suppression a échoué");
           }
-          return response.json();
         })
         .then((data) => {
           console.log("Données reçues du serveur :", data);
+        })
+        .catch((error) => {
+          console.error("Erreur lors de la suppression :", error);
         });
     });
   });
@@ -160,6 +160,21 @@ async function displayCatModal() {
 }
 displayCatModal();
 
+function createWorkHTML(workData) {
+  const figure = document.createElement("figure");
+  const img = document.createElement("img");
+  const figcaption = document.createElement("figcaption");
+
+  img.src = workData.imageUrl;
+  img.alt = workData.title;
+  figcaption.textContent = workData.title;
+
+  figure.appendChild(img);
+  figure.appendChild(figcaption);
+
+  return figure;
+}
+
 ////////////AJOUTER PROJETS FETCH POST////////////
 
 const form = document.querySelector(".modal-add-photo form");
@@ -179,7 +194,7 @@ form.addEventListener("submit", (e) => {
   //   "title": "string",
   //   "imageUrl": "string",
   //   "categoryId": "string",
-  //   "userId": 0
+  ////   "userId": 0
   // }  /////////////////
 
   // Ajout des champs requis
@@ -210,17 +225,25 @@ form.addEventListener("submit", (e) => {
     .then((data) => {
       console.log(`Projet ajouté avec succès :`, data);
       document.querySelector(".errorDataFile").style.display = "none";
-      // réponse Fetch ici
+
+      const newWork = data; 
+      const newWorkHTML = createWorkHTML(newWork);
+
+      // Ajoute le nouvel élément à la galerie existante du modal et portfolio
+      modalWrapper.querySelector(".modal-gallery").appendChild(newWorkHTML);
+
+      const portfolioGallery = document.querySelector("#portfolio .gallery");
+      portfolioGallery.appendChild(newWorkHTML.cloneNode(true));
+
+      // Afficher à nouveau la modale
       modalAddPhoto.style.display = "none";
-    // Afficher à nouveau la modale "ajouter une photo"
-    modal.style.display = "flex";
-    modalWrapper.style.display = "flex";
-      
+      modal.style.display = "flex";
+      modalWrapper.style.display = "flex";
     })
     .catch((error) => {
       console.error(`Erreur lors de l'ajout du projet :`, error);
     });
-});
+}); // Ajoutez la fermeture de la promesse then ici
 
 function disabledValider() {
   const formAddImg = document.querySelector("#form-add-img");
