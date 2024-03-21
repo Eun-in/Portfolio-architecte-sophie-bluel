@@ -57,7 +57,6 @@ function switchText() {
     editionModeDiv.style.display = "block"; // Afficher l'élément
   } else {
     loginButton.textContent = "login";
-    editionModeDiv.style.display = "none"; // Cacher l'élément
   }
 }
 

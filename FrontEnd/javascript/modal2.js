@@ -7,8 +7,9 @@ const modalWrapper = document.querySelector(".modal-wrapper");
 const modalAddPhoto = document.querySelector(".modal-add-photo");
 const inputAjouterPhoto = document.querySelector(".modal-ajout-btn");
 const arrowCallBack = document.querySelector(".fa-arrow-left");
+const API_URL = "http://localhost:5678/api/works";
 
-//séparer une callback pour l'utiliser sur plusieurs éléments
+// Séparer une callback pour l'utiliser sur plusieurs éléments
 const displayModale = () => {
   modal.style.display = "flex";
   modalWrapper.style.display = "flex";
@@ -30,7 +31,7 @@ for (const croix of spanClose) {
   croix.addEventListener("click", displayClose);
 }
 
-// When the user clicks the button, open the modal *2B9S
+// When the user clicks the button, open the modal
 btnEdition.addEventListener("click", displayModale);
 
 // When the user clicks anywhere outside of the modal, close it
@@ -42,111 +43,80 @@ window.onclick = function (event) {
   }
 };
 
-export async function modalCreateWorksList() {
-  try {
-    const [response, works] = await fetchData();
-    // const arrayWorksNode = [response, works]
-    if (response.status === 200) {
-      const div = document.createElement("div");
-      div.classList.add("modal-gallery");
-      for (let i = 0; i < works.length; i++) {
-        div.innerHTML += `<figure class="figure-relative" data-category="${works[i].categoryId}">
-                  <img src="${works[i].imageUrl}" alt="${works[i].title}"> <button class="delete-photo" id="${works[i].id}"><i class="fas fa-trash-alt"></i></button>
-                  </figure>`;
-      }
-      const hr = document.createElement("hr");
-      // modalWrapper.innerHTML = '';
-      modalWrapper.appendChild(div);
-      modalWrapper.appendChild(hr);
-      modalWrapper.appendChild(inputAjouterPhoto);
+// Fonction pour ajouter l'écouteur d'événements de suppression à une image
+function addDeleteEventListener(trash) {
+  trash.addEventListener("click", (e) => {
+    e.preventDefault();
+    const id = trash.id;
 
-      disabledValider();
-      // Console log pour vérifier les identifiants des boutons de suppression
-      //  console.log("Identifiants des boutons de suppression :", document.querySelectorAll(".delete-photo"));
-    }
-  } catch (error) {
-    console.error("Error fetching data", error);
-  }
-  deleteProjet();
-}
+    const token = sessionStorage.getItem("auth");
 
-modalCreateWorksList();
-
-inputAjouterPhoto.addEventListener("click", () => {
-  modalAddPhoto.style.display = "flex";
-  modalWrapper.style.display = "none";
-  // console.log('coucou'); commence toujours par faire une consolelog dans tes callback
-});
-
-arrowCallBack.addEventListener("click", displayModale);
-
-///////// Delete images ///////////
-function deleteProjet() {
-  const trashNode = document.querySelectorAll(".delete-photo");
-  trashNode.forEach((trash) => {
-    trash.addEventListener("click", (e) => {
-      e.preventDefault();
-      const id = trash.id;
-
-      const token = sessionStorage.getItem("auth");
-
-      fetch(`http://localhost:5678/api/works/${id}`, {
-        method: "DELETE",
-        body: null,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+    fetch(`http://localhost:5678/api/works/${id}`, {
+      method: "DELETE",
+      body: null,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          console.log("Réponse du serveur, la suppression a échoué");
+        } else {
+          trash.parentNode.remove();
+        }
       })
-        .then((response) => {
-          if (!response.ok) {
-            console.log("Réponse du serveur, la suppression a échoué");
-          }
-        })
-        .then((data) => {
-          console.log("Données reçues du serveur :", data);
-        })
-        .catch((error) => {
-          console.error("Erreur lors de la suppression :", error);
-        });
-    });
+      .then((data) => {
+        console.log("Données reçues du serveur :", data);
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la suppression :", error);
+      });
   });
 }
 
-//////////////AJOUTER PREVIEW/////////////////
+// Fonction pour supprimer un projet
+function deleteProjet() {
+  const trashNode = document.querySelectorAll(".delete-photo");
+  trashNode.forEach((trash) => {
+    addDeleteEventListener(trash); // Ajouter l'écouteur d'événements de suppression
+  });
+}
 
-const imgPreview = document.querySelector(".container-add-img img");
-const imgFile = document.querySelector(".container-add-img input");
-const imgLabel = document.querySelector(".container-add-img label");
-const imgI = document.querySelector(".container-add-img .fa-image");
-const imgSpan = document.querySelector(".container-add-img span");
+const categoryInput = document.querySelector("#form-category");
+const titleInput = document.querySelector("#add-title");
+// Fonction pour créer le HTML d'un travail
+function createWorkHTML(workData) {
+  const figure = document.createElement("figure");
+  const img = document.createElement("img");
+  const deleteButton = document.createElement("button");
+  const trashIcon = document.createElement("i");
 
-imgFile.addEventListener("change", () => {
-  const file = imgFile.files[0];
-  if (file) {
-    //FileReader permet à des applications web de lire le contenu de fichiers async. On peut ainsi lire des File
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      imgPreview.src = e.target.result;
-      imgPreview.style.display = "flex";
-      imgFile.style.display = "none";
-      imgLabel.style.display = "none";
-      imgI.style.display = "none";
-      imgSpan.style.display = "none";
-    };
-    reader.readAsDataURL(file);
-  }
-});
+  img.src = workData.imageUrl;
+  img.alt = workData.title;
 
-///////Recuperer les cat dans la modale/////////
+  figure.setAttribute("class", "figure-relative");
+  deleteButton.classList.add("delete-photo");
+  trashIcon.classList.add("fas", "fa-trash-alt");
 
+  deleteButton.id = workData.id;
+
+  // Ajouter l'écouteur d'événements de suppression à chaque nouveau bouton de suppression
+  addDeleteEventListener(deleteButton);
+
+  deleteButton.appendChild(trashIcon);
+  figure.appendChild(img);
+  figure.appendChild(deleteButton);
+
+  return figure;
+}
+
+// Fonction pour afficher les catégories dans la modale
 async function displayCatModal() {
   const select = document.querySelector("#form-add-img select");
   try {
     const [response, categories] = await fetchDataCat();
     if (response.status === 200) {
-      // forEach itérer sur les éléments d'un tableau et
-      // d'appliquer une fonction à chaque élément.
       categories.forEach((category) => {
         const option = document.createElement("option");
         option.value = category.id;
@@ -160,50 +130,58 @@ async function displayCatModal() {
 }
 displayCatModal();
 
-function createWorkHTML(workData) {
-  const figure = document.createElement("figure");
-  const img = document.createElement("img");
-  const figcaption = document.createElement("figcaption");
+// Fonction pour désactiver le bouton "Valider"
+function disabledValider() {
+  const formAddImg = document.querySelector("#form-add-img");
+  const confirmValid = document.querySelector("#confirm-valid");
+  const addImg = document.querySelector("#add-img");
+  const titleInput = document.querySelector("#add-title");
+  const categoryInput = document.querySelector("#form-category");
 
-  img.src = workData.imageUrl;
-  img.alt = workData.title;
-  figcaption.textContent = workData.title;
-
-  figure.appendChild(img);
-  figure.appendChild(figcaption);
-
-  return figure;
+  formAddImg.addEventListener("input", () => {
+    if (addImg.value && titleInput.value && categoryInput.value !== "default") {
+      confirmValid.classList.add("input-valider");
+    } else {
+      confirmValid.classList.remove("input-valider");
+    }
+  });
 }
 
-////////////AJOUTER PROJETS FETCH POST////////////
+// Fonction pour ajouter une prévisualisation de l'image
+const imgPreview = document.querySelector(".container-add-img img");
+const imgFile = document.querySelector(".container-add-img input");
+const imgLabel = document.querySelector(".container-add-img label");
+const imgI = document.querySelector(".container-add-img .fa-image");
+const imgSpan = document.querySelector(".container-add-img span");
 
+imgFile.addEventListener("change", () => {
+  const file = imgFile.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      imgPreview.src = e.target.result;
+      imgPreview.style.display = "flex";
+      imgFile.style.display = "none";
+      imgLabel.style.display = "none";
+      imgI.style.display = "none";
+      imgSpan.style.display = "none";
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Fonction pour créer une nouvelle image
 const form = document.querySelector(".modal-add-photo form");
-const titleInput = document.querySelector("#add-title");
-const categoryInput = document.querySelector("#form-category");
-const API_URL = "http://localhost:5678/api/works";
-
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const token = sessionStorage.getItem("auth");
-
   const formData = new FormData();
-  /////// autre forme
-  // {
-  //   "id": 0,
-  //   "title": "string",
-  //   "imageUrl": "string",
-  //   "categoryId": "string",
-  ////   "userId": 0
-  // }  /////////////////
 
-  // Ajout des champs requis
   formData.append("image", imgFile.files[0]);
   formData.append("title", titleInput.value);
   formData.append("category", categoryInput.value);
 
-  // Vérifie si le partie n'est pas définie, si c'est le cas alors
-  // j'affiche un message d'erreur
   if (!imgFile.files[0] || !titleInput.value || !categoryInput.value) {
     document.querySelector(".errorDataFile").style.display = "block";
     return;
@@ -226,37 +204,55 @@ form.addEventListener("submit", (e) => {
       console.log(`Projet ajouté avec succès :`, data);
       document.querySelector(".errorDataFile").style.display = "none";
 
-      const newWork = data; 
+      const newWork = data;
       const newWorkHTML = createWorkHTML(newWork);
 
-      // Ajoute le nouvel élément à la galerie existante du modal et portfolio
       modalWrapper.querySelector(".modal-gallery").appendChild(newWorkHTML);
 
       const portfolioGallery = document.querySelector("#portfolio .gallery");
       portfolioGallery.appendChild(newWorkHTML.cloneNode(true));
 
-      // Afficher à nouveau la modale
       modalAddPhoto.style.display = "none";
       modal.style.display = "flex";
       modalWrapper.style.display = "flex";
+
+      // Après l'ajout d'une nouvelle image, appeler deleteProjet pour ajouter les écouteurs d'événements de suppression
+      deleteProjet();
     })
     .catch((error) => {
       console.error(`Erreur lors de l'ajout du projet :`, error);
     });
-}); // Ajoutez la fermeture de la promesse then ici
+});
 
-function disabledValider() {
-  const formAddImg = document.querySelector("#form-add-img");
-  const confirmValid = document.querySelector("#confirm-valid");
-  const addImg = document.querySelector("#add-img");
-  const titleInput = document.querySelector("#add-title");
-  const categoryInput = document.querySelector("#form-category");
-
-  formAddImg.addEventListener("input", () => {
-    if (addImg.value && titleInput.value && categoryInput.value !== "default") {
-      confirmValid.classList.add("input-valider");
-    } else {
-      confirmValid.classList.remove("input-valider");
+// Appeler la fonction pour créer la liste des travaux au chargement de la page
+export async function modalCreateWorksList() {
+  try {
+    const [response, works] = await fetchData();
+    if (response.status === 200) {
+      const div = document.createElement("div");
+      div.classList.add("modal-gallery");
+      for (let i = 0; i < works.length; i++) {
+        div.innerHTML += `<figure class="figure-relative" data-category="${works[i].categoryId}">
+          <img src="${works[i].imageUrl}" alt="${works[i].title}"> <button class="delete-photo" id="${works[i].id}"><i class="fas fa-trash-alt"></i></button>
+        </figure>`;
+      }
+      const hr = document.createElement("hr");
+      modalWrapper.appendChild(div);
+      modalWrapper.appendChild(hr);
+      modalWrapper.appendChild(inputAjouterPhoto);
+      disabledValider();
+      deleteProjet();
     }
-  });
+  } catch (error) {
+    console.error("Error fetching data", error);
+  }
 }
+
+modalCreateWorksList();
+
+inputAjouterPhoto.addEventListener("click", () => {
+  modalAddPhoto.style.display = "flex";
+  modalWrapper.style.display = "none";
+});
+
+arrowCallBack.addEventListener("click", displayModale);
