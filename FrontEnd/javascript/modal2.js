@@ -1,7 +1,7 @@
 import fetchData from "./fetchWorks.js";
 import fetchDataCat from "./fetchCategories.js";
 
-// Get the modal
+// récupérer et rendre la modale dynamique
 const modal = document.querySelector(".modal");
 const modalWrapper = document.querySelector(".modal-wrapper");
 const modalAddPhoto = document.querySelector(".modal-add-photo");
@@ -9,7 +9,7 @@ const inputAjouterPhoto = document.querySelector(".modal-ajout-btn");
 const arrowCallBack = document.querySelector(".fa-arrow-left");
 const API_URL = "http://localhost:5678/api/works";
 
-// Séparer une callback pour l'utiliser sur plusieurs éléments
+// faire apparaître et disparaître la modale
 const displayModale = () => {
   modal.style.display = "flex";
   modalWrapper.style.display = "flex";
@@ -22,19 +22,18 @@ const displayClose = () => {
   modalAddPhoto.style.display = "none";
 };
 
-// Get the button that opens the modal
+// btn pour ouvrir la modale
 const btnEdition = document.querySelector(".fa-pen-to-square");
 
-// Get the <span> element that closes the modal
+// span croix pour la fermer
 const spanClose = document.querySelectorAll(".fa-xmark");
 for (const croix of spanClose) {
   croix.addEventListener("click", displayClose);
 }
 
-// When the user clicks the button, open the modal
 btnEdition.addEventListener("click", displayModale);
 
-// When the user clicks anywhere outside of the modal, close it
+// ferme la modale quand on click en dehors de la modale
 window.onclick = function (event) {
   if (event.target == modal) {
     modal.style.display = "none";
@@ -43,8 +42,16 @@ window.onclick = function (event) {
   }
 };
 
-// Fonction pour ajouter l'écouteur d'événements de suppression à une image
-function addDeleteEventListener(trash) {
+// Fonction pour mettre à jour le DOM de la galerie index après la suppression d'une image
+function updateGalleryIndex(id) {
+  const galleryImage = document.querySelector(`.gallery [id="${id}"]`);
+  if (galleryImage) {
+    galleryImage.parentNode.remove();
+  }
+}
+
+// Fonction pour supprimer une image
+function deleteProjet(trash) {
   trash.addEventListener("click", (e) => {
     e.preventDefault();
     const id = trash.id;
@@ -64,6 +71,7 @@ function addDeleteEventListener(trash) {
           console.log("Réponse du serveur, la suppression a échoué");
         } else {
           trash.parentNode.remove();
+          updateGalleryIndex(id); // Mettre à jour le DOM de la galerie index
         }
       })
       .then((data) => {
@@ -75,17 +83,9 @@ function addDeleteEventListener(trash) {
   });
 }
 
-// Fonction pour supprimer un projet
-function deleteProjet() {
-  const trashNode = document.querySelectorAll(".delete-photo");
-  trashNode.forEach((trash) => {
-    addDeleteEventListener(trash); // Ajouter l'écouteur d'événements de suppression
-  });
-}
-
 const categoryInput = document.querySelector("#form-category");
 const titleInput = document.querySelector("#add-title");
-// Fonction pour créer le HTML d'un travail
+// creation du DOM
 function createWorkHTML(workData) {
   const figure = document.createElement("figure");
   const img = document.createElement("img");
@@ -101,8 +101,8 @@ function createWorkHTML(workData) {
 
   deleteButton.id = workData.id;
 
-  // Ajouter l'écouteur d'événements de suppression à chaque nouveau bouton de suppression
-  addDeleteEventListener(deleteButton);
+  // Appeler deleteProjet avec le bouton de suppression
+  deleteProjet(deleteButton);
 
   deleteButton.appendChild(trashIcon);
   figure.appendChild(img);
@@ -111,7 +111,7 @@ function createWorkHTML(workData) {
   return figure;
 }
 
-// Fonction pour afficher les catégories dans la modale
+// afficher les catégories dans la modale
 async function displayCatModal() {
   const select = document.querySelector("#form-add-img select");
   try {
@@ -130,7 +130,7 @@ async function displayCatModal() {
 }
 displayCatModal();
 
-// Fonction pour désactiver le bouton "Valider"
+// désactiver le bouton "Valider"
 function disabledValider() {
   const formAddImg = document.querySelector("#form-add-img");
   const confirmValid = document.querySelector("#confirm-valid");
@@ -147,7 +147,7 @@ function disabledValider() {
   });
 }
 
-// Fonction pour ajouter une prévisualisation de l'image
+// prévisualisation de l'image
 const imgPreview = document.querySelector(".container-add-img img");
 const imgFile = document.querySelector(".container-add-img input");
 const imgLabel = document.querySelector(".container-add-img label");
@@ -170,7 +170,7 @@ imgFile.addEventListener("change", () => {
   }
 });
 
-// Fonction pour créer une nouvelle image
+// créer une nouvelle image
 const form = document.querySelector(".modal-add-photo form");
 form.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -215,9 +215,18 @@ form.addEventListener("submit", (e) => {
       modalAddPhoto.style.display = "none";
       modal.style.display = "flex";
       modalWrapper.style.display = "flex";
-
-      // Après l'ajout d'une nouvelle image, appeler deleteProjet pour ajouter les écouteurs d'événements de suppression
-      deleteProjet();
+      
+      //reset du formulaire et du previewImg
+      form.reset();
+      imgFile.value = '';
+      imgPreview.style.display = 'none';
+      imgFile.style.display = 'block';
+      
+      // Après l'ajout d'une nouvelle img, appeler la fonction deleteProjet pour prendre en compte les nouveaux boutons de suppression
+      const trashNodes = document.querySelectorAll(".delete-photo");
+      trashNodes.forEach((trash) => {
+        deleteProjet(trash);
+      });
     })
     .catch((error) => {
       console.error(`Erreur lors de l'ajout du projet :`, error);
@@ -232,16 +241,34 @@ export async function modalCreateWorksList() {
       const div = document.createElement("div");
       div.classList.add("modal-gallery");
       for (let i = 0; i < works.length; i++) {
-        div.innerHTML += `<figure class="figure-relative" data-category="${works[i].categoryId}">
-          <img src="${works[i].imageUrl}" alt="${works[i].title}"> <button class="delete-photo" id="${works[i].id}"><i class="fas fa-trash-alt"></i></button>
-        </figure>`;
+        const figure = document.createElement("figure");
+        const img = document.createElement("img");
+        const deleteButton = document.createElement("button");
+        const trashIcon = document.createElement("i");
+
+        img.src = works[i].imageUrl;
+        img.alt = works[i].title;
+
+        figure.setAttribute("class", "figure-relative");
+        deleteButton.classList.add("delete-photo");
+        trashIcon.classList.add("fas", "fa-trash-alt");
+
+        deleteButton.id = works[i].id;
+
+        deleteButton.appendChild(trashIcon);
+        figure.appendChild(img);
+        figure.appendChild(deleteButton);
+
+        div.appendChild(figure);
+
+        // Appeler deleteProjet avec le bouton de suppression
+        deleteProjet(deleteButton);
       }
       const hr = document.createElement("hr");
       modalWrapper.appendChild(div);
       modalWrapper.appendChild(hr);
       modalWrapper.appendChild(inputAjouterPhoto);
       disabledValider();
-      deleteProjet();
     }
   } catch (error) {
     console.error("Error fetching data", error);
